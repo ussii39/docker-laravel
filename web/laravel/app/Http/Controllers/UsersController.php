@@ -34,7 +34,7 @@ class UsersController extends Controller
             'email' => $request->email,
             'password' => $request->password
       ]);
-     dd($user->toSql(), $user->getBindings());
+    //  dd($user->toSql(), $user->getBindings());
     // $user = new User;
     // $user->name = $request->name;
     // $user->id = $request->id;
@@ -42,7 +42,7 @@ class UsersController extends Controller
     // $user->password = $request->password;
 
     // $user->save();
-    // return response()->json($user, 200, $headers);
+    return response()->json($user, 200);
     }
 
     /**

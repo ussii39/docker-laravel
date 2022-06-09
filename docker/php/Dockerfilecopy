@@ -1,7 +1,6 @@
 FROM php:7.4.1-fpm
 
-COPY /docker/php/php.ini /usr/local/etc/php/
-# COPY ./php.ini /usr/local/etc/php/
+COPY ./php.ini /usr/local/etc/php/
 
 RUN apt update && apt-get -y install vim
 RUN apt install -y wget git unzip libpq-dev
@@ -12,8 +11,8 @@ RUN apt install -y npm \
     && n 12
 
 # Install PHP Extensions
-RUN apt install -y zlib1g-dev mariadb-client libzip-dev libonig-dev \
-    && docker-php-ext-install zip pdo_mysql
+# RUN apt install -y zlib1g-dev mariadb-client libzip-dev libonig-dev \
+#     && docker-php-ext-install zip pdo_mysql
 
 
 # Install Composer
@@ -36,13 +35,12 @@ RUN curl -sS https://getcomposer.org/installer | php \
 
 # COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-# COPY /../web/ /var/www
-# VOLUME  ["/web"] 
-# VOLUME /docker-laravel_php-fpm-socket :/../web/
-
-
 # Docker Instructionの実行ディレクトリを変更
 WORKDIR /var/www
+
+COPY ./web/ /var/www
+
+# RUN useradd -m -s /bin/sh -u 1000 www-data
 
 # php-fpmはデフォルトのユーザwww-dataで動く。https://stackoverflow.com/questions/48619445/permission-denied-error-using-laravel-docker
 # 変更する場合は /usr/local/etc/php-fpm.d/www.conf でユーザー名を変える。
@@ -50,14 +48,12 @@ RUN chown -R www-data:www-data /var/www
 # /var/wwwの所有者をwww-data 所有グループをwww-dataに変更
 
 RUN mkdir /var/run/php-fpm
-COPY /docker/php/php-fpm.d/zzz-www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
 
-# COPY ./php-fpm.d/zzz-www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
-# COPY /docker/php/php-fpm.d/zzz-www.conf /var/run/php-fpm/php-fpm.sock
-# コンテナ起動時にphp-fpm.sockファイルができる
+COPY ./php-fpm.d/zzz-www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
+COPY ./php-fpm.d/zzz-www.conf /var/run/php-fpm/zzz-www.conf
 
 # Linux設定のための各種ファイルを持っているディレクトリ。 etc文字の意味の通り、そのシステム全体で使用する設定のようなエトセトラデータが保存されるフォルダ。
 # システムのほぼすべての設定ファイルが存在するディレクトリ。
-EXPOSE 8000
+EXPOSE 9000
 
 RUN composer global require "laravel/installer"
